@@ -4,6 +4,25 @@ History
 Releases
 --------
 
+Version 4.2.1
+`````````````
+
+* Fix to allow running ``env`` in replwrap-ed bash.
+* Raise more informative exception from pxssh if it fails to connect.
+* Change ``passmass`` example to not log passwords entered.
+
+Version 4.2
+```````````
+
+* Change: When an ``env`` parameter is specified to the :class:`~.spawn` or
+  :class:`~.run` family of calls containing a value for ``PATH``, its value is
+  used to discover the target executable from a relative path, rather than the
+  current process's environment ``PATH``.  This mirrors the behavior of
+  :func:`subprocess.Popen` in the standard library (:ghissue:`348`).
+
+* Regression: Re-introduce capability for :meth:`read_nonblocking` in class
+  :class:`fdspawn` as previously supported in version 3.3 (:ghissue:`359`).
+
 Version 4.0
 ```````````
 
@@ -106,7 +125,7 @@ new maintenance after a long dormancy, so some caution is warranted.
 * Ignoring ``SIGHUP`` is now optional - thanks to Kimmo Parviainen-Jalanko for
   the patch.
 
-We also now have `docs on ReadTheDocs <http://pexpect.readthedocs.org/>`_,
+We also now have `docs on ReadTheDocs <https://pexpect.readthedocs.io/>`_,
 and `continuous integration on Travis CI <https://travis-ci.org/pexpect/pexpect>`_.
 
 Version 2.4

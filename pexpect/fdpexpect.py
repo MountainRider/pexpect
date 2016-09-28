@@ -22,7 +22,8 @@ PEXPECT LICENSE
 '''
 
 from .spawnbase import SpawnBase
-from .exceptions import ExceptionPexpect
+from .exceptions import ExceptionPexpect, TIMEOUT
+from .utils import select_ignore_interrupts
 import os
 
 __all__ = ['fdspawn']
@@ -112,3 +113,30 @@ class fdspawn(SpawnBase):
         "Call self.write() for each item in sequence"
         for s in sequence:
             self.write(s)
+
+    def read_nonblocking(self, size=1, timeout=-1):
+        """
+        Read from the file descriptor and return the result as a string.
+
+        The read_nonblocking method of :class:`SpawnBase` assumes that a call
+        to os.read will not block (timeout parameter is ignored). This is not
+        the case for POSIX file-like objects such as sockets and serial ports.
+
+        Use :func:`select.select`, timeout is implemented conditionally for
+        POSIX systems.
+
+        :param int size: Read at most *size* bytes.
+        :param int timeout: Wait timeout seconds for file descriptor to be
+            ready to read. When -1 (default), use self.timeout. When 0, poll.
+        :return: String containing the bytes read
+        """
+        if os.name == 'posix':
+            if timeout == -1:
+                timeout = self.timeout
+            rlist = [self.child_fd]
+            wlist = []
+            xlist = []
+            rlist, wlist, xlist = select_ignore_interrupts(rlist, wlist, xlist, timeout)
+            if self.child_fd not in rlist:
+                raise TIMEOUT('Timeout exceeded.')
+        return super(fdspawn, self).read_nonblocking(size)
